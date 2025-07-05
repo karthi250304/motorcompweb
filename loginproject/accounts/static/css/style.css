@@ -1,0 +1,149 @@
+.form-section, .company-list {
+    max-width: 800px;
+    margin: 20px auto;
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: none;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-actions button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #2c3e50;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-add {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: 30px;
+}
+
+.btn-edit {
+    padding: 8px 18px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-delete {
+    padding: 8px 16px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.btn-active {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn-inactive {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.btn-reset {
+    padding: 8px 16px;
+    background-color: #e67e22;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.button-cont {
+    margin-left: 30px;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin: 30px 10px;
+    padding: 0 20px;
+    box-sizing: border-box;
+    background-color: white;
+}
+
+table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+th {
+    background-color: #2c3e50;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+    background-color: #eaeaea;
+    cursor: pointer;
+}

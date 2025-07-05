@@ -1,0 +1,129 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<!-- Add Company Button -->
+<div>
+    <button class="btn-add" onclick="toggleForm()" id="addBtn">
+        {% if edit_company %}- Close Form{% else %}+ Add Company{% endif %}
+    </button>
+</div>
+
+<!-- Company Form -->
+<div class="form-section" id="companyForm">
+    <h2>{% if edit_company %}Edit Company{% else %}Add Company{% endif %}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if edit_company %}
+            <input type="hidden" name="company_id" value="{{ edit_company.id }}">
+        {% endif %}
+
+        <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" name="name" value="{{ edit_company.name|default_if_none:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Address</label>
+            <textarea name="address" required>{{ edit_company.address|default_if_none:'' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>GST Number</label>
+            <input type="text" name="gst_number" value="{{ edit_company.gst_number|default_if_none:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Company Phone</label>
+            <input type="text" name="company_phone" value="{{ edit_company.company_phone|default_if_none:'' }}" maxlength="10" required>
+        </div>
+
+        <div class="form-group">
+            <label>Contact Person</label>
+            <input type="text" name="contact_person" value="{{ edit_company.contact_person|default_if_none:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Contact Phone</label>
+            <input type="text" name="contact_phone" value="{{ edit_company.contact_phone|default_if_none:'' }}" maxlength="10" required>
+        </div>
+
+        <div class="form-group">
+            <label>Upload Company Logo</label>
+            <input type="file" name="logo" accept="image/*" {% if not edit_company %}required{% endif %}>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">{% if edit_company %}Update{% else %}Submit{% endif %}</button>
+            <a href="{% url 'company_master' %}"><button type="button">Cancel</button></a>
+        </div>
+    </form>
+</div>
+
+<!-- Company Table -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Company Name</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for company in companies %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ company.name }}</td>
+                <td>{{ company.address }}</td>
+                <td>
+                    <a href="{% url 'toggle_company_status' company.id %}">
+                        <button class="{% if company.is_active %}btn-active{% else %}btn-inactive{% endif %}">
+                            {% if company.is_active %} Active {% else %} Inactive {% endif %}
+                        </button>
+                    </a>
+                </td>
+                <td>
+                    <a href="?edit={{ company.id }}">
+                        <button class="btn-edit">Edit</button>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No companies found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Form toggle script -->
+<script>
+function toggleForm() {
+    const form = document.getElementById('companyForm');
+    const button = document.getElementById('addBtn');
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        button.textContent = '- Close Form';
+    } else {
+        form.style.display = 'none';
+        button.textContent = '+ Add Company';
+    }
+}
+</script>
+
+<!-- Auto open form if editing -->
+{% if edit_company %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        toggleForm();
+    });
+</script>
+{% endif %}
+
+{% endblock %}

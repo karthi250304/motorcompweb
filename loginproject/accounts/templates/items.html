@@ -1,0 +1,132 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<div>
+    <button class="btn-add" onclick="toggleForm()" id="createBtn">
+        {% if edit_item %}- Close Form{% else %}+ Add Item{% endif %}
+    </button>
+</div>
+
+<div class="form-section" id="itemForm">
+    <h2>{% if edit_item %}Edit Item{% else %}Add Item{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if edit_item %}
+        <input type="hidden" name="item_id" value="{{ edit_item.id }}">
+        {% endif %}
+
+        <div class="form-group">
+            <label>Item Name</label>
+            <input type="text" name="name" value="{{ edit_item.name|default_if_none:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Item Code</label>
+            <input type="text" name="code" value="{{ edit_item.code|default_if_none:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Brand Name</label>
+            <input type="text" name="brand" value="{{ edit_item.brand|default_if_none:'' }}" required>
+        </div>
+
+
+        <div class="form-group">
+            <label>Category</label>
+            <select name="category_id" required style="width: 102.5%; height: 38px; cursor: pointer;">
+                <option value="">-- Select Category --</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if edit_item and cat.id == edit_item.category.id %}selected{% endif %}>
+                    {{ cat.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Sub Category</label>
+            <select name="subcategory_id" required style="width: 102.5%; height: 38px; cursor: pointer;">
+                <option value="">-- Select Sub Category --</option>
+                {% for sub in subcategories %}
+                <option value="{{ sub.id }}" {% if edit_item and sub.id == edit_item.subcategory.id %}selected{% endif %}>
+                    {{ sub.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Warranty (in months)</label>
+            <input type="number" name="warranty" value="{{ edit_item.warranty|default_if_none:'' }}" required>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">{% if edit_item %}Update{% else %}Submit{% endif %}</button>
+            <a href="{% url 'item_master' %}"><button type="button">Cancel</button></a>
+        </div>
+    </form>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Item Name</th>
+                <th>Brand</th>
+                <th>Warranty</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.brand }}</td>
+                <td>{{ item.warranty }} months</td>
+                <td>
+                    <a href="{% url 'toggle_item_status' item.id %}">
+                        <button class="{% if item.is_active %}btn-active{% else %}btn-inactive{% endif %}">
+                            {% if item.is_active %}Active{% else %}Inactive{% endif %}
+                        </button>
+                    </a>
+                </td>
+                <td>
+                    <a href="?edit={{ item.id }}"><button class="btn-edit">Edit</button></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8">No items found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function toggleForm() {
+    const form = document.getElementById('itemForm');
+    const button = document.getElementById('createBtn');
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        button.textContent = '- Close Form';
+    } else {
+        form.style.display = 'none';
+        button.textContent = '+ Add Item';
+    }
+}
+</script>
+
+{% if edit_item %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        toggleForm();  // Automatically open the form in edit mode
+    });
+</script>
+{% endif %}
+
+{% endblock %}

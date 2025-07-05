@@ -1,0 +1,102 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<div>
+    <button class="btn-add" onclick="toggleForm()">+ Add Sub Category</button>
+</div>
+
+<div class="form-section" id="subcategoryForm">
+    <h2>{% if edit_subcategory %}Edit Sub Category{% else %}Add Sub Category{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if edit_subcategory %}
+        <input type="hidden" name="subcategory_id" value="{{ edit_subcategory.id }}">
+        {% endif %}
+
+        <div class="form-group">
+    <label>Sub Category Name</label>
+    <input type="text" name="name" value="{{ edit_subcategory.name|default_if_none:'' }}" required style="width: 100%;">
+</div>
+
+<div class="form-group">
+    <label>Item Category</label>
+    <select name="category_id" required style="width: 102.5%; height: 38px; cursor: pointer;">
+        <option value="">-- Select Category --</option>
+        {% for category in categories %}
+            <option value="{{ category.id }}"
+                {% if edit_subcategory and category.id == edit_subcategory.category.id %}selected{% endif %}>
+                {{ category.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+        <div class="form-actions">
+            <button type="submit">{% if edit_subcategory %}Update{% else %}Submit{% endif %}</button>
+            <a href="{% url 'item_subcategory' %}"><button type="button">Cancel</button></a>
+        </div>
+    </form>
+</div>
+
+<!-- Table -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Sub Category Name</th>
+                <th>Item Category</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subcat in subcategories %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ subcat.name }}</td>
+                <td>{{ subcat.category.name }}</td>
+                <td>
+                    <a href="{% url 'toggle_subcategory_status' subcat.id %}">
+                        <button class="{% if subcat.is_active %}btn-active{% else %}btn-inactive{% endif %}">
+                            {% if subcat.is_active %}Active{% else %}Inactive{% endif %}
+                        </button>
+                    </a>
+                </td>
+                <td>
+                    <a href="?edit={{ subcat.id }}"><button class="btn-edit">Edit</button></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">No subcategories found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function toggleForm() {
+    const form = document.getElementById('subcategoryForm');
+    const button = document.querySelector('.btn-add');
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        button.textContent = '- Close Form';
+    } else {
+        form.style.display = 'none';
+        button.textContent = '+ Add Sub Category';
+    }
+}
+</script>
+
+{% if edit_subcategory %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        toggleForm();
+    });
+</script>
+{% endif %}
+
+{% endblock %}

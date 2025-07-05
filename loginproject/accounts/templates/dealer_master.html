@@ -1,0 +1,130 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+
+
+<!-- Add Company Button -->
+<div>
+    <button class="btn-add" onclick="toggleForm()">+ Add Company</button>
+</div>
+
+<!-- Company Form -->
+<!-- Dealer Form -->
+<div class="form-section" id="companyForm">
+    <h2>{% if edit_dealer %}Edit Dealer{% else %}Add Dealer{% endif %}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if edit_dealer %}
+        <input type="hidden" name="dealer_id" value="{{ edit_dealer.id }}">
+        {% endif %}
+
+        <div class="form-group">
+            <label>Dealer Name</label>
+            <input type="text" name="name" value="{{ edit_dealer.name|default_if_none:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Address</label>
+            <textarea name="address" required>{{ edit_dealer.address|default_if_none:'' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>GST Number</label>
+            <input type="text" name="gst_number" value="{{ edit_dealer.gst_number|default_if_none:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Dealer Phone</label>
+            <input type="text" name="company_phone" value="{{ edit_dealer.company_phone|default_if_none:'' }}" maxlength="10" required>
+        </div>
+
+        <div class="form-group">
+            <label>Contact Person</label>
+            <input type="text" name="contact_person" value="{{ edit_dealer.contact_person|default_if_none:'' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Contact Phone</label>
+            <input type="text" name="contact_phone" value="{{ edit_dealer.contact_phone|default_if_none:'' }}" maxlength="10" required>
+        </div>
+
+        <div class="form-group">
+            <label>Upload Dealer Logo</label>
+            <input type="file" name="logo" accept="image/*" {% if not edit_dealer %}required{% endif %}>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">{% if edit_dealer %}Update{% else %}Submit{% endif %}</button>
+            <a href="{% url 'dealer_master' %}"><button type="button">Cancel</button></a>
+        </div>
+    </form>
+</div>
+
+
+<!-- Company Table -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Company Name</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dealer in dealers %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dealer.name }}</td>
+                    <td>{{ dealer.address }}</td>
+                    <td>
+                        <a href="{% url 'toggle_dealer_status' dealer.id %}">
+                            <button class="{% if dealer.is_active %}btn-active{% else %}btn-inactive{% endif %}">
+                                {% if dealer.is_active %} Active {% else %} Inactive {% endif %}
+                            </button>
+                        </a>
+                    </td>
+                    <td>
+                    <a href="?edit={{ dealer.id }}">
+                        <button class="btn-edit">Edit</button>
+                    </a>
+
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No dealers found.</td>
+                </tr>
+                {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+<script>
+function toggleForm() {
+    const form = document.getElementById('companyForm');
+    const button = document.querySelector('.btn-add');
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        button.textContent = '- Close Form';
+    } else {
+        form.style.display = 'none';
+        button.textContent = '+ Add Company';
+    }
+}
+</script>
+{% if edit_dealer %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        toggleForm();  // Automatically show form when editing
+    });
+</script>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+        }
+        .navbar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid white;
+            border-radius: 4px;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #1c2833;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            padding: 20px;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 8px 0;
+        }
+        .sidebar h4 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div>Welcome to Dashboard</div>
+        <div><a href="{% url 'logout' %}">Logout</a></div>
+    </div>
+
+    <div class="sidebar">
+        <h4>Home</h4>
+        <a href="{% url 'dashboard' %}">Home</a>
+
+        <h4>Reports</h4>
+        <a href="#">Stock Report</a>
+        <a href="#">Sales Report</a>
+
+        <h4>Bills</h4>
+        <a href="{% url 'create_bill' %}">Create Bills</a>
+        <a href="#">Estimate</a>
+        <a href="#">Quotation</a>
+
+        <h4>Masters</h4>
+        <a href="{% url 'user_form' %}">Users</a>
+        <a href="{% url 'company_master' %}">Company Master</a>
+        <a href="{% url 'dealer_master'%}">Dealer Master</a>
+        <a href="{% url 'tax_master' %}">Tax Master</a>
+        <a href="{% url 'item_category' %}">Item Category</a>
+        <a href="{% url 'item_subcategory' %}">Item Sub Category</a>
+        <a href="{% url 'item_master'%}">Items</a>
+
+        
+    </div>
+
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

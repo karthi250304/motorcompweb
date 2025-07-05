@@ -1,0 +1,237 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<!-- Create Bill Button -->
+<div>
+    <button class="btn-add" onclick="toggleForm()" id="createBtn">+ Create Bill</button>
+</div>
+
+<!-- Create Bill Form -->
+<div class="form-section" id="billForm">
+    <h2>Create Bill</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Customer Info -->
+        <div class="form-group">
+            <label>Customer Name</label>
+            <input type="text" name="customer_name" required>
+        </div>
+
+        <div class="form-group">
+            <label>Customer Address</label>
+            <input type="text" name="customer_address" required>
+        </div>
+
+        <div class="form-group">
+            <label>Customer Phone</label>
+            <input type="text" name="customer_phone" maxlength="10" required>
+        </div>
+
+        <!-- Category and Subcategory -->
+        <div class="form-group">
+            <label>Item Category</label>
+            <select id="categorySelect" style="width: 102.5%; height: 38px;">
+                <option value="">-- Select Category --</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Item Subcategory</label>
+            <select id="subcategorySelect" style="width: 102.5%; height: 38px;">
+                <option value="">-- Select Subcategory --</option>
+                {% for sub in subcategories %}
+                    <option value="{{ sub.id }}" data-category="{{ sub.category.id }}">{{ sub.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Item Details -->
+        <div class="form-group">
+            <label>Item</label>
+            <select name="item" id="itemSelect" required style="width: 102.5%; height: 38px; cursor: pointer;">
+                <option value="">-- Select Item --</option>
+                {% for item in items %}
+                    <option value="{{ item.id }}" data-rate="{{ item.rate }}" data-subcategory="{{ item.subcategory.id }}">
+                        {{ item.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Quantity</label>
+            <input type="number" name="quantity" id="quantity" min="1" required>
+        </div>
+
+        <div class="form-group">
+            <label>Rate</label>
+            <input type="number" name="rate" id="rate" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label>GST</label>
+            <select name="tax" id="taxSelect" required style="width: 102.5%; height: 38px; cursor: pointer;">
+                <option value="">-- Select GST --</option>
+                {% for tax in taxes %}
+                <option value="{{ tax.id }}" data-cgst="{{ tax.cgst }}" data-sgst="{{ tax.sgst }}" data-igst="{{ tax.igst }}">
+                    {{ tax.name }} 
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Auto Calculated -->
+        <div class="form-group">
+            <label>Amount</label>
+            <input type="text" id="amount" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>CGST</label>
+            <input type="text" id="cgstAmount" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>SGST</label>
+            <input type="text" id="sgstAmount" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>IGST</label>
+            <input type="text" id="igstAmount" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Total</label>
+            <input type="text" id="totalAmount" readonly>
+        </div>
+
+        <!-- Dealer and Company -->
+        <div class="form-group">
+            <label>Dealer</label>
+            <select name="dealer" id="dealerSelect" required style="width: 102.5%; height: 38px; cursor: pointer;">
+                <option value="">-- Select Dealer --</option>
+                {% for dealer in dealers %}
+                    <option value="{{ dealer.id }}" data-address="{{ dealer.address|escape }}">{{ dealer.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Company</label>
+            <select name="company" id="companySelect" required style="width: 102.5%; height: 38px; cursor: pointer;">
+                <option value="">-- Select Company --</option>
+                {% for company in companies %}
+                    <option value="{{ company.id }}" data-address="{{ company.address|escape }}">{{ company.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Billing / Shipping -->
+        <div class="form-group">
+            <label>Billing Address</label>
+            <input type="text" name="billing_address" id="billingAddress" required>
+        </div>
+
+        <div class="form-group">
+            <label>Shipping Address</label>
+            <input type="text" name="shipping_address" id="shippingAddress" required>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Submit Bill</button>
+            <button type="button" onclick="toggleForm()">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleForm() {
+    const form = document.getElementById('billForm');
+    const button = document.getElementById('createBtn');
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        button.textContent = '- Close Form';
+    } else {
+        form.style.display = 'none';
+        button.textContent = '+ Create Bill';
+    }
+}
+
+function calculateTotals() {
+    const qty = parseFloat(document.getElementById('quantity').value) || 0;
+    const rate = parseFloat(document.getElementById('rate').value) || 0;
+    const amount = qty * rate;
+    document.getElementById('amount').value = amount.toFixed(2);
+
+    const taxSelect = document.getElementById('taxSelect');
+    const selected = taxSelect.options[taxSelect.selectedIndex];
+    const cgst = parseFloat(selected.getAttribute('data-cgst')) || 0;
+    const sgst = parseFloat(selected.getAttribute('data-sgst')) || 0;
+    const igst = parseFloat(selected.getAttribute('data-igst')) || 0;
+
+    const cgstAmt = (amount * cgst) / 100;
+    const sgstAmt = (amount * sgst) / 100;
+    const igstAmt = (amount * igst) / 100;
+    const total = amount + cgstAmt + sgstAmt + igstAmt;
+
+    document.getElementById('cgstAmount').value = cgstAmt.toFixed(2);
+    document.getElementById('sgstAmount').value = sgstAmt.toFixed(2);
+    document.getElementById('igstAmount').value = igstAmt.toFixed(2);
+    document.getElementById('totalAmount').value = total.toFixed(2);
+}
+
+document.getElementById('itemSelect').addEventListener('change', function () {
+    const rate = this.options[this.selectedIndex].getAttribute('data-rate');
+    document.getElementById('rate').value = rate || '';
+    calculateTotals();
+});
+
+document.getElementById('dealerSelect').addEventListener('change', function () {
+    const selected = this.options[this.selectedIndex];
+    const address = selected.getAttribute('data-address') || '';
+    document.getElementById('billingAddress').value = address;
+});
+
+document.getElementById('companySelect').addEventListener('change', function () {
+    const selected = this.options[this.selectedIndex];
+    const address = selected.getAttribute('data-address') || '';
+    document.getElementById('shippingAddress').value = address;
+});
+
+// Filter subcategories based on selected category
+document.getElementById('categorySelect').addEventListener('change', function () {
+    const selectedCat = this.value;
+    const subcatSelect = document.getElementById('subcategorySelect');
+    Array.from(subcatSelect.options).forEach(option => {
+        const match = option.getAttribute('data-category') === selectedCat;
+        option.style.display = match || option.value === '' ? 'block' : 'none';
+    });
+    subcatSelect.value = '';
+    document.getElementById('itemSelect').value = '';
+});
+
+// Filter items based on selected subcategory
+document.getElementById('subcategorySelect').addEventListener('change', function () {
+    const selectedSubcat = this.value;
+    const itemSelect = document.getElementById('itemSelect');
+    Array.from(itemSelect.options).forEach(option => {
+        const match = option.getAttribute('data-subcategory') === selectedSubcat;
+        option.style.display = match || option.value === '' ? 'block' : 'none';
+    });
+    itemSelect.value = '';
+    document.getElementById('rate').value = '';
+});
+document.getElementById('quantity').addEventListener('input', calculateTotals);
+document.getElementById('rate').addEventListener('input', calculateTotals);
+document.getElementById('taxSelect').addEventListener('change', calculateTotals);
+</script>
+
+{% endblock %}

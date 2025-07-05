@@ -1,0 +1,94 @@
+{% extends 'dashboard.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<!-- Add Category Button -->
+<div>
+    <button class="btn-add" onclick="toggleForm()" id="addBtn">
+        {% if edit_category %}- Close Form{% else %}+ Add Category{% endif %}
+    </button>
+</div>
+
+<!-- Item Category Form -->
+<div class="form-section" id="categoryForm">
+    <h2>{% if edit_category %}Edit Category{% else %}Add Category{% endif %}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if edit_category %}
+            <input type="hidden" name="category_id" value="{{ edit_category.id }}">
+        {% endif %}
+        <div class="form-group">
+            <label>Item Category Name</label>
+            <input type="text" name="name" value="{{ edit_category.name|default_if_none:'' }}" required>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" name="save_category">
+                {% if edit_category %}Update{% else %}Submit{% endif %}
+            </button>
+            <a href="{% url 'item_category' %}"><button type="button">Go Back</button></a>
+        </div>
+    </form>
+</div>
+
+<!-- Category Table -->
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>S.No</th>
+                <th>Item Category</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ category.name }}</td>
+                <td>
+                    <a href="{% url 'toggle_item_category_status' category.id %}">
+                        <button class="{% if category.is_active %}btn-active{% else %}btn-inactive{% endif %}">
+                            {% if category.is_active %}Active{% else %}Inactive{% endif %}
+                        </button>
+                    </a>
+                </td>
+                <td>
+                    <a href="?edit={{ category.id }}">
+                        <button class="btn-edit">Edit</button>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">No categories found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function toggleForm() {
+    const form = document.getElementById('categoryForm');
+    const button = document.getElementById('addBtn');
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        button.textContent = '- Close Form';
+    } else {
+        form.style.display = 'none';
+        button.textContent = '+ Add Category';
+    }
+}
+</script>
+
+{% if edit_category %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        toggleForm();
+    });
+</script>
+{% endif %}
+
+{% endblock %}
